@@ -1,0 +1,207 @@
+---
+title: "Untitled"
+author: "Santiago Alvarez Barbosa, Santiago Diaz Jinete, Nicolás Velandia Sanabria"
+date: "11/20/2021"
+output: html_document
+---
+Loading Packages...
+```{r}
+library(ggplot2)
+library(ggthemes)
+library(MASS)
+library(caret)
+library(klaR)
+```
+
+Loading 2015-2019 Data and Data Cleaning...
+```{r}
+bat_2015 <- read.csv("Batting_2015.csv")
+bat_2015 <- bat_2015[,c(1,4,6,7,9,10,11,12,14,17)]
+colnames(bat_2015)[colnames(bat_2015) == "SO"] <- "SOA"
+error_2015 <- read.csv("Error_2015.csv")
+E <- error_2015[,12]
+pitch_2015 <- read.csv("Pitching_2015.csv")
+pitch_2015 <- pitch_2015[,c(4,8,13,17,20,21,23,24)]
+colnames(pitch_2015)[colnames(pitch_2015) %in% c("H","HR")] <- c("HA","HRA")
+data_2015 = cbind(bat_2015,pitch_2015,E)
+data_2015 = data_2015[c(-31,-32),]
+data_2015$Ssn <- 2015 
+```
+
+```{r}
+bat_2016 <- read.csv("Batting_2016.csv")
+bat_2016 <- bat_2016[,c(1,4,6,7,9,10,11,12,14,17)]
+colnames(bat_2016)[colnames(bat_2016) == "SO"] <- "SOA"
+error_2016 <- read.csv("Error_2016.csv")
+E <- error_2016[,12]
+pitch_2016 <- read.csv("Pitching_2016.csv")
+pitch_2016 <- pitch_2016[,c(4,8,13,17,20,21,23,24)]
+colnames(pitch_2016)[colnames(pitch_2016) %in% c("H","HR")] <- c("HA","HRA")
+data_2016 = cbind(bat_2016,pitch_2016,E)
+data_2016 = data_2016[c(-31,-32),]
+data_2016$Ssn <- 2016 
+```
+
+```{r}
+bat_2017 <- read.csv("Batting_2017.csv")
+bat_2017 <- bat_2017[,c(1,4,6,7,9,10,11,12,14,17)]
+colnames(bat_2017)[colnames(bat_2017) == "SO"] <- "SOA"
+error_2017 <- read.csv("Error_2017.csv")
+E <- error_2017[,12]
+pitch_2017 <- read.csv("Pitching_2017.csv")
+pitch_2017 <- pitch_2017[,c(4,8,13,17,20,21,23,24)]
+colnames(pitch_2017)[colnames(pitch_2017) %in% c("H","HR")] <- c("HA","HRA")
+data_2017 = cbind(bat_2017,pitch_2017,E)
+data_2017 = data_2017[c(-31,-32),]
+data_2017$Ssn <- 2017 
+```
+
+```{r}
+bat_2018 <- read.csv("Batting_2018.csv")
+bat_2018 <- bat_2018[,c(1,4,6,7,9,10,11,12,14,17)]
+colnames(bat_2018)[colnames(bat_2018) == "SO"] <- "SOA"
+error_2018 <- read.csv("Error_2018.csv")
+E <- error_2018[,12]
+pitch_2018 <- read.csv("Pitching_2018.csv")
+pitch_2018 <- pitch_2018[,c(4,8,13,17,20,21,23,24)]
+colnames(pitch_2018)[colnames(pitch_2018) %in% c("H","HR")] <- c("HA","HRA")
+data_2018 = cbind(bat_2018,pitch_2018,E)
+data_2018 = data_2018[c(-31,-32),]
+data_2018$Ssn <- 2018 
+```
+
+```{r}
+bat_2019 <- read.csv("Batting_2019.csv")
+bat_2019 <- bat_2019[,c(1,4,6,7,9,10,11,12,14,17)]
+colnames(bat_2019)[colnames(bat_2019) == "SO"] <- "SOA"
+error_2019 <- read.csv("Error_2019.csv")
+E <- error_2019[,12]
+pitch_2019 <- read.csv("Pitching_2019.csv")
+pitch_2019 <- pitch_2019[,c(4,8,13,17,20,21,23,24)]
+colnames(pitch_2019)[colnames(pitch_2019) %in% c("H","HR")] <- c("HA","HRA")
+data_2019 = cbind(bat_2019,pitch_2019,E)
+data_2019 = data_2019[c(-31,-32),]
+data_2019$Ssn <- 2019 
+```
+
+
+```{r}
+post_2019 = c("Non-Playoff","Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Playoff","Non-Playoff","Non-Playoff","Playoff","Non-Playoff","Playoff","Playoff","Non-Playoff","Playoff","Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Playoff","Playoff","Non-Playoff","Non-Playoff","Playoff")
+post_2018 = c("Non-Playoff","Playoff","Non-Playoff","Playoff","Playoff","Non-Playoff","Non-Playoff","Playoff","Playoff","Non-Playoff","Playoff","Non-Playoff","Non-Playoff","Playoff","Non-Playoff","Playoff","Non-Playoff","Non-Playoff","Playoff","Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff")
+post_2017 = c("Playoff","Non-Playoff","Non-Playoff","Playoff","Playoff","Non-Playoff","Non-Playoff","Playoff","Playoff","Non-Playoff","Playoff","Non-Playoff","Non-Playoff","Playoff","Non-Playoff","Non-Playoff","Playoff","Non-Playoff","Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Playoff")
+post_2016 = c("Non-Playoff","Non-Playoff","Playoff","Playoff","Playoff","Non-Playoff","Non-Playoff","Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Playoff","Non-Playoff","Non-Playoff","Playoff","Playoff","Playoff")
+post_2015 = c("Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Playoff","Playoff","Non-Playoff","Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Playoff","Playoff","Non-Playoff","Non-Playoff","Playoff","Non-Playoff","Non-Playoff","Non-Playoff","Playoff","Non-Playoff","Playoff","Playoff","Non-Playoff")
+data_2019 = cbind(data_2019,post_2019)
+colnames(data_2019)[colnames(data_2019) == "post_2019"] <- "Ps"
+data_2018 = cbind(data_2018,post_2018)
+colnames(data_2018)[colnames(data_2018) == "post_2018"] <- "Ps"
+data_2017 = cbind(data_2017,post_2017)
+colnames(data_2017)[colnames(data_2017) == "post_2017"] <- "Ps"
+data_2016 = cbind(data_2016,post_2016)
+colnames(data_2016)[colnames(data_2016) == "post_2016"] <- "Ps"
+data_2015 = cbind(data_2015,post_2015)
+colnames(data_2015)[colnames(data_2015) == "post_2015"] <- "Ps"
+```
+
+```{r}
+data = rbind(data_2019,data_2018,data_2017,data_2016,data_2015)
+head(data)
+```
+
+#### Análisis de Componentes Principales 
+
+```{r}
+summary(data)
+```
+Recordemos que PCA únicamente acepta aquellas variables que son continuas, es decir que variables como *Tm* y *Ssn*, las cual representa el equipo y la temporada respectivamente, no se tendrá en cuenta.
+
+Aplicando PCA...
+```{r}
+data.pca <- prcomp(data[,c(-1,-20,-21)], scale = TRUE)
+```
+
+Teniendo los CP, miremos la proporción acumulada y los eigenvalores para determinar el número de de componentes que deberiamos escoger.
+```{r}
+summary(data.pca)
+```
+Entonces determinamos que un número apropiado de componentes principales es 7. Esto debido a que la mayoria de los eigenvalores son mayores iguales a uno y adicionalmente 84.4% de la varianza total está acumulada en los primeros 7 CP. 
+
+Podemos verificar esta conclusión con un Scree Plot
+
+```{r}
+variance = data.pca$sdev^2
+qplot(c(1:18), variance) +
+  geom_line(color='darkred') +
+  geom_point(size=2,color='darkblue')+
+  xlab("Principal Component") +
+  ylab("Variance") +
+  ggtitle("Scree Plot for MLB Data") +
+  ylim(0, 6) +
+  theme_igray() 
+```
+Como se puede apreciar, en el componente principal 8 es cuando la varianza se empieza a nivelar, por lo que escoger 7 componentes principales es una decisión adecuada.
+
+Entonces a continuación se presentan las 7 CP escogidos:
+
+```{r}
+data.pca$rotation[,1:7]
+```
+
+#### Análisis Discriminante 
+
+Para hacer un analisis discriminante usaremos los componentes principales hayados anteriormente debido a que ya sabemos que no estan correlacionados.
+
+Usaremos los datos de las temporadas 2015-2018 como training data para el modelo y consecuentemente veremos como el modelo clasifica a los equipos en la temporada del 2019.
+
+```{r}
+new.data <- cbind(data[c("Ps","Ssn")],data.pca$x[,1:7])
+training = (new.data$Ssn < 2019)
+testing = !training
+
+training_data = new.data[training,]
+testing_data = new.data[testing,]
+
+post_season = new.data$Ps[testing]
+```
+
+Ahora, debido a $\Sigma_1 \neq \Sigma_2$ de nuestras poblaciones Playoffs y Non-Playoffs, Usaremos un analisis discriminante cuadratico. 
+
+Primero ajustamos el modelo:
+```{r}
+qda_model <- qda(Ps~.,data=training_data,type = "C-Classification")
+```
+
+Validamos nuestro modelo usando el testing data set:
+```{r}
+qda_pred <- predict(qda_model, testing_data)
+qda_pred_post_season = qda_pred$class
+```
+
+Obtenemos el Confusion Matrix:
+```{r}
+cmatrix_lda<-table(qda_pred_post_season,post_season, dnn = c("Actual Group", "Predicted Group"))
+confusionMatrix(cmatrix_lda)
+```
+
+Por último calculamos el error de clasificar erroneamente
+```{r}
+mean(qda_pred_post_season!= post_season)
+```
+Entonces, como se puede apreciar, el modelo propuesto es 83.3% preciso en clasificar a los equipos en las poblaciones *Playoffs* y *Non-Playoffs*. Adicionalmente encontramos que el error de clasificar erroneamente a uno de estos equipos es del 16.6%, lo cual es relativamente pequeño.
+
+Por lo tanto, tenemos la siguiente tabla que compara los resultados obtenidos del Análsis Discriminante con los valores reales:
+```{r}
+data_2019_pred = cbind(data_2019[c("Tm","Ssn","Ps")],qda_pred_post_season)
+colnames(data_2019_pred)[colnames(data_2019_pred) == "Tm"] <- "Team"
+colnames(data_2019_pred)[colnames(data_2019_pred) == "Ssn"] <- "Season"
+colnames(data_2019_pred)[colnames(data_2019_pred) == "Ps"] <- "True Population"
+colnames(data_2019_pred)[colnames(data_2019_pred) == "qda_pred_post_season"] <- "Predicted Population"
+data_2019_pred
+```
+
+Por último se presentan con la funcion partimat que permite visualizar los resultados de las clasificaciones 2 variables a la vez.
+```{r}
+testing_data$Ps = as.factor(testing_data$Ps)
+partimat(testing_data[,3:7],testing_data$Ps, data=testing_data, method = "qda")
+```
+
